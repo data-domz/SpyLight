@@ -28,8 +28,31 @@ function App() {
     const fileType = uploadedFile.type;
 
     if (fileType === 'application/pdf') {
-      setFileUrl(URL.createObjectURL(uploadedFile));
-      setFileType('pdf');
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+
+      try {
+        const response = await fetch('http://localhost:5000/convert', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('File uploaded successfully:', result);
+          alert('File uploaded successfully to the backend!'); // Show an alert for confirmation
+          
+          // Display the PDF in the viewer
+          setFileUrl(URL.createObjectURL(uploadedFile));
+          setFileType('pdf');
+        } else {
+          console.error('Failed to upload file');
+          alert('Failed to upload file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('Error uploading file');
+      }
     } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const reader = new FileReader();
       reader.onload = async (event) => {
@@ -89,7 +112,7 @@ function App() {
       <UploadSection onFileUpload={handleFileUpload} />
       <div className="viewer-container">
         <div className="document-viewer" ref={viewerRef}>
-          {fileType === 'pdf' && (
+          {fileType === 'pdf' && fileUrl && (
             <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`}>
               <Viewer fileUrl={fileUrl} plugins={[defaultLayoutPluginInstance]} />
             </Worker>
