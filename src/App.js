@@ -19,6 +19,7 @@ function App() {
   const [fileType, setFileType] = useState('');
   const [fileContent, setFileContent] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [originalContent, setOriginalContent] = useState(''); // New state for storing original content
   const viewerRef = useRef(null);
 
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -40,6 +41,7 @@ function App() {
         };
         const result = await mammoth.convertToHtml({ arrayBuffer }, options);
         setFileContent(result.value);
+        setOriginalContent(result.value); // Store original content
         setFileType('docx');
       };
       reader.readAsArrayBuffer(uploadedFile);
@@ -64,8 +66,20 @@ function App() {
     console.log('Search button pressed with term:', searchTerm);
 
     if (fileType === 'docx') {
-      const highlightedContent = fileContent.replace(new RegExp(searchTerm, 'gi'), match => `<mark>${match}</mark>`);
+      const highlightedContent = originalContent.replace(new RegExp(searchTerm, 'gi'), match => `<mark>${match}</mark>`);
       setFileContent(highlightedContent);
+    }
+  };
+
+  const handleClearHighlights = () => {
+    if (fileType === 'docx') {
+      setFileContent(originalContent); // Reset to original content
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -98,10 +112,12 @@ function App() {
             type="text" 
             value={searchTerm} 
             onChange={handleSearchChange} 
+            onKeyDown={handleKeyDown} 
             placeholder="Enter word to search" 
             className="search-input"
           />
           <button onClick={handleSearch} className="search-button">Search</button>
+          <button onClick={handleClearHighlights} className="clear-button">Clear Highlights</button>
           <button className="questions">Questions</button>
           <button className="definitions">Definitions</button>
           <button className="numbers">Numbers</button>

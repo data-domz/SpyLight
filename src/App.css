@@ -59,7 +59,7 @@
   width: 200px;
 }
 
-.search-button, .word-search, .questions, .definitions, .numbers, .quotes {
+.search-button, .clear-button, .word-search, .questions, .definitions, .numbers, .quotes {
   margin: 5px;
   padding: 10px 20px;
   border: none;
@@ -75,6 +75,10 @@
 
 .search-button {
   background-color: #ffcc00;
+}
+
+.clear-button {
+  background-color: #ff4444; /* Red background for clear button */
 }
 
 .questions {
@@ -93,7 +97,7 @@
   background-color: #9966ff;
 }
 
-.search-button:hover, .word-search:hover, .questions:hover, .definitions:hover, .numbers:hover, .quotes:hover {
+.search-button:hover, .clear-button:hover, .word-search:hover, .questions:hover, .definitions:hover, .numbers:hover, .quotes:hover {
   background-color: #21a1f1;
   color: white; /* Change text color on hover */
 }
