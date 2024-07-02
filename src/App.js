@@ -33,7 +33,12 @@ function App() {
       const reader = new FileReader();
       reader.onload = async (event) => {
         const arrayBuffer = event.target.result;
-        const result = await mammoth.convertToHtml({ arrayBuffer });
+        const options = {
+          styleMap: [
+            "p => p:fresh"
+          ]
+        };
+        const result = await mammoth.convertToHtml({ arrayBuffer }, options);
         setFileContent(result.value);
         setFileType('docx');
       };
@@ -69,7 +74,7 @@ function App() {
       <h1>SpyLight</h1>
       <UploadSection onFileUpload={handleFileUpload} />
       <div className="viewer-container">
-        <div className="document-viewer" ref={viewerRef} style={{ position: 'relative' }}>
+        <div className="document-viewer" ref={viewerRef}>
           {fileType === 'pdf' && (
             <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`}>
               <Viewer fileUrl={fileUrl} plugins={[defaultLayoutPluginInstance]} />
@@ -101,6 +106,14 @@ function App() {
           <button className="definitions">Definitions</button>
           <button className="numbers">Numbers</button>
           <button className="quotes">Quotes</button>
+          <div className="chat-box">
+            <h2>Chat with AI</h2>
+            <div className="chat-messages">
+              {/* Chat messages will be displayed here */}
+            </div>
+            <input type="text" className="chat-input" placeholder="Type your message here..." />
+            <button className="send-button">Send</button>
+          </div>
         </div>
       </div>
       <PreferencesSection onPreferencesChange={handlePreferencesChange} />
