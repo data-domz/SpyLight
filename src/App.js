@@ -8,18 +8,14 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import './App.css';
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 function App() {
   const [fileUrl, setFileUrl] = useState('');
   const [fileType, setFileType] = useState('');
   const [fileContent, setFileContent] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [originalContent, setOriginalContent] = useState(''); // New state for storing original content
+  const [originalContent, setOriginalContent] = useState('');
   const viewerRef = useRef(null);
 
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -28,46 +24,24 @@ function App() {
     const fileType = uploadedFile.type;
 
     if (fileType === 'application/pdf') {
-      const formData = new FormData();
-      formData.append('file', uploadedFile);
-
-      try {
-        const response = await fetch('http://localhost:5000/convert', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log('File uploaded successfully:', result);
-          alert('File uploaded successfully to the backend!'); // Show an alert for confirmation
-          
-          // Display the PDF in the viewer
-          setFileUrl(URL.createObjectURL(uploadedFile));
-          setFileType('pdf');
-        } else {
-          console.error('Failed to upload file');
-          alert('Failed to upload file');
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        alert('Error uploading file');
-      }
+      setFileUrl(URL.createObjectURL(uploadedFile));
+      setFileType('pdf');
     } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const reader = new FileReader();
       reader.onload = async (event) => {
         const arrayBuffer = event.target.result;
         const options = {
-          styleMap: [
-            "p => p:fresh"
-          ]
+          styleMap: ["p => p:fresh"]
         };
         const result = await mammoth.convertToHtml({ arrayBuffer }, options);
         setFileContent(result.value);
-        setOriginalContent(result.value); // Store original content
+        setOriginalContent(result.value);
         setFileType('docx');
       };
       reader.readAsArrayBuffer(uploadedFile);
+    } else if (fileType.startsWith('image/')) {
+      setFileUrl(URL.createObjectURL(uploadedFile));
+      setFileType('image');
     } else {
       alert('Unsupported file type');
     }
@@ -96,7 +70,7 @@ function App() {
 
   const handleClearHighlights = () => {
     if (fileType === 'docx') {
-      setFileContent(originalContent); // Reset to original content
+      setFileContent(originalContent);
     }
   };
 
@@ -122,6 +96,9 @@ function App() {
               className="docx-content"
               dangerouslySetInnerHTML={{ __html: fileContent }}
             ></div>
+          )}
+          {fileType === 'image' && (
+            <img src={fileUrl} alt="Uploaded" style={{ maxWidth: '100%', maxHeight: '900px' }} />
           )}
           {!fileType && (
             <div className="placeholder">

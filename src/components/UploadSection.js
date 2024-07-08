@@ -1,18 +1,22 @@
 import React from 'react';
+import { useDropzone } from 'react-dropzone';
 
-function UploadSection({ onFileUpload }) {
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      onFileUpload(file);
+const UploadSection = ({ onFileUpload }) => {
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: ['.pdf', '.docx', 'image/jpeg', 'image/png'],
+    onDrop: (acceptedFiles) => {
+      onFileUpload(acceptedFiles[0]);
     }
-  };
+  });
 
   return (
-    <div>
-      <input type="file" onChange={handleFileChange} />
+    <div className="upload-section">
+      <div {...getRootProps({ className: 'dropzone' })}>
+        <input {...getInputProps()} />
+        <p>Drag 'n' drop a file here, or click to select a file</p>
+      </div>
     </div>
   );
-}
+};
 
 export default UploadSection;
